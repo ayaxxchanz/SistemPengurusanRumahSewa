@@ -1,10 +1,14 @@
 package com.aliya.rentalmgmt.entity;
 
+import com.aliya.rentalmgmt.entity.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,12 +29,15 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(length = 30)
+    @Column(length = 12)
     private String phone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role;
+        @ManyToMany(fetch = FetchType.EAGER)
+        @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+        )
+        private Set<Role> roles = new LinkedHashSet<>();
 
     @Column(name = "is_active")
     private Boolean isActive = true;

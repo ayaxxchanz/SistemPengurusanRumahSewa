@@ -1,19 +1,10 @@
 package com.aliya.rentalmgmt.service;
 
-import com.aliya.rentalmgmt.entity.User;
-import com.aliya.rentalmgmt.repository.UserRepository;
-import org.springframework.stereotype.Service;
+import com.aliya.rentalmgmt.dto.request.ProfileRequestDto;
+import com.aliya.rentalmgmt.dto.response.ProfileResponseDto;
 
-@Service
-public class UserService {
+public interface UserService {
 
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public User create(User user) {
-        return userRepository.save(user);
-    }
+    ProfileResponseDto getProfile(Long id);
+    ProfileResponseDto updateProfile(Long id, ProfileRequestDto profileRequestDto);
 }
