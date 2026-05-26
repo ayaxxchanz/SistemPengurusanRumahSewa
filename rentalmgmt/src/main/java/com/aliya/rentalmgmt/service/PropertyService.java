@@ -1,19 +1,12 @@
 package com.aliya.rentalmgmt.service;
 
 import com.aliya.rentalmgmt.entity.Property;
-import com.aliya.rentalmgmt.repository.PropertyRepository;
-import org.springframework.stereotype.Service;
 
-@Service
-public class PropertyService {
+import java.util.List;
 
-    private final PropertyRepository propertyRepository;
+public interface PropertyService {
 
-    public PropertyService(PropertyRepository propertyRepository) {
-        this.propertyRepository = propertyRepository;
-    }
+    Property create(Property property);
+    List<Property> getAll();
 
-    public Property create(Property property) {
-        return propertyRepository.save(property);
-    }
 }

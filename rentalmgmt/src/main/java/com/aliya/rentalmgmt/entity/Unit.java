@@ -1,5 +1,6 @@
 package com.aliya.rentalmgmt.entity;
 
+import com.aliya.rentalmgmt.enums.UnitStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
