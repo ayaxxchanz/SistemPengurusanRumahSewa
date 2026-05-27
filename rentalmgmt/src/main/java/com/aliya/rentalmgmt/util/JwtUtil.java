@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-// import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -28,9 +28,12 @@ public class JwtUtil {
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         User fetchedUser = (User) authentication.getPrincipal();
         // generate header, payload & digital signature
-        jwt = Jwts.builder().issuer("Eazy Store").subject("JWT Token")
+        jwt = Jwts.builder().issuer("Rental Mgmt").subject("JWT Token")
                 .claim("phone",  fetchedUser.getPhone()) // claim(key, value)
                 .claim("email",  fetchedUser.getEmail()) // claim(key, value)
+                .claim("roles", authentication.getAuthorities().stream()
+                        .map(Object::toString)
+                        .collect(Collectors.joining(",")))
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + 60 * 60 * 1000)) // 1 hour expiration
                 .signWith(secretKey).compact();

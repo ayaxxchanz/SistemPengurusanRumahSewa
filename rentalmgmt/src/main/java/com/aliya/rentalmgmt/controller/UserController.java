@@ -14,16 +14,28 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProfileResponseDto> getProfile(@PathVariable Long id){
-        ProfileResponseDto profileResponseDto = userService.getProfile(id);
+    @GetMapping
+    public ResponseEntity<ProfileResponseDto> getProfile(){
+        ProfileResponseDto profileResponseDto = userService.getProfile();
         return ResponseEntity.ok(profileResponseDto);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProfileResponseDto> updateProfile(@PathVariable Long id,
-                                                            @Validated @RequestBody ProfileRequestDto profileRequestDto){
-        ProfileResponseDto profileResponseDto = userService.updateProfile(id, profileRequestDto);
+    @PutMapping
+    public ResponseEntity<ProfileResponseDto> updateProfile(@Validated @RequestBody ProfileRequestDto profileRequestDto){
+        ProfileResponseDto profileResponseDto = userService.updateProfile(profileRequestDto);
         return ResponseEntity.ok(profileResponseDto);
     }
+
+//    @GetMapping("/{id}")
+//    public ResponseEntity<ProfileResponseDto> getProfile(@PathVariable Long id){
+//        ProfileResponseDto profileResponseDto = userService.getProfile(id);
+//        return ResponseEntity.ok(profileResponseDto);
+//    }
+//
+//    @PutMapping("/{id}")
+//    public ResponseEntity<ProfileResponseDto> updateProfile(@PathVariable Long id,
+//                                                            @Validated @RequestBody ProfileRequestDto profileRequestDto){
+//        ProfileResponseDto profileResponseDto = userService.updateProfile(id, profileRequestDto);
+//        return ResponseEntity.ok(profileResponseDto);
+//    }
 }
