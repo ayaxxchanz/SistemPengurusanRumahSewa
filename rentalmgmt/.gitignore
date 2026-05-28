@@ -1,14 +1,3 @@
-# Custom Project Overrides
-.env
-.agents/
-AGENTS.md
-logs/
-
-# Frontend UI Dependencies
-**/rentalmgmt-ui/node_modules/
-**/rentalmgmt-ui/dist/
-**/rentalmgmt-ui/.env*
-
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
