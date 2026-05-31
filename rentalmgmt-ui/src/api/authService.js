@@ -2,7 +2,7 @@ import apiClient from '@/api/apiClient';
 
 export async function loginAction(loginForm) {
   const loginData = {
-    username: loginForm.phone,
+    phone: loginForm.phone,
     password: loginForm.password,
   };
 
