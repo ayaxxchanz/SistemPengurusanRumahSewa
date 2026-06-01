@@ -19,6 +19,14 @@ public class RegisterRequestDto {
     @Email(message = "Email address must be a valid value")
     private String email;
 
+    @NotBlank(message = "Role is required")
+    @Pattern(
+            regexp = "^(TENANT|LANDLORD)$",
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Role must be either TENANT or LANDLORD"
+    )
+    private String role;
+
     @NotBlank(message = "Mobile number is required")
     @Pattern(regexp = "^\\d{11,12}$", message = "Mobile number must be 11 or 12 digits")
     private String mobileNumber;

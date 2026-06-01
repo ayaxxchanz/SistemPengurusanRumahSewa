@@ -19,7 +19,7 @@ const handleLogin = async () => {
   const result = await authStore.login(form);
 
   if (result.success) {
-    router.push("/profile");
+    router.replace("/dashboard");
   } else {
     console.log(result.errors.message);
   }

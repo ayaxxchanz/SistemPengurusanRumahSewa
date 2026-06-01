@@ -107,10 +107,18 @@ onMounted(() => {
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Rekod Sewaan">
-          <Icon icon="mdi:files" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Rekod Sewaan</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Rekod Sewaan</span>
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Kutipan">
+          <Icon icon="streamline-ultimate:begging-hand-coin-2-bold" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
+          <span v-if="!isCollapsed">Kutipan</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Kutipan</span>
+        </a>
+      </li>
+
+      <li class="group">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Penyelenggaraan">
+          <Icon icon="wpf:maintenance" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
+          <span v-if="!isCollapsed">Penyelenggaraan</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Penyelenggaraan</span>
         </a>
       </li>
 

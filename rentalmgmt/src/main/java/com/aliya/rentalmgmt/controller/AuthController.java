@@ -100,9 +100,7 @@ public class AuthController {
         BeanUtils.copyProperties(registerRequestDto, user);
         user.setPhone(registerRequestDto.getMobileNumber());
         user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
-        Role tenantRole = roleRepository.findByName("ROLE_TENANT")
-            .orElseGet(() -> roleRepository.save(new Role("ROLE_TENANT")));
-        user.setRoles(Set.of(tenantRole));
+        roleRepository.findByName("ROLE_".concat(registerRequestDto.getRole().toUpperCase())).ifPresent(role -> user.setRoles(Set.of(role)));
         userRepository.save(user);
 
         return ResponseEntity

@@ -7,16 +7,20 @@ import AuthSidebar from '@/components/AuthSidebar.vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
+import { useRouter } from "vue-router";
+import { useRegisterStore } from "@/stores/authStore"
 
+const registerStore = useRegisterStore()
+const router = useRouter()
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const validationSchema = toTypedSchema(
   z.object({
-    name: z.string().min(1, 'Nama penuh wajib diisi').default(''),
-    primaryRole: z.enum(['pemilik', 'penyewa']).default('pemilik'),
+    fullName: z.string().min(1, 'Nama penuh wajib diisi').default(''),
+    role: z.enum(['landlord', 'tenant']).default('landlord'),
     email: z.string().min(1, 'Emel wajib diisi').email('Format emel tidak sah').default(''),
-    phone: z.string()
+    mobileNumber: z.string()
       .min(1, 'Nombor telefon wajib diisi')
       .regex(/^(\+?6?01)[0-46-9]-*[0-9]{7,8}$/, 'Format nombor telefon Malaysia tidak sah'),
     password: z.string().min(8, 'Kata laluan mestilah sekurang-kurangnya 8 aksara'),
@@ -33,27 +37,31 @@ const validationSchema = toTypedSchema(
 const { errors, defineField, handleSubmit } = useForm({
   validationSchema,
   initialValues: {
-    name: "",
-    primaryRole: "pemilik",
+    fullName: "",
+    role: "landlord",
     email: "",
-    phone: "", 
+    mobileNumber: "", 
     password: "",
     confirmPassword: "",
     agree: false
   }
 })
 
-const [name] = defineField('name')
-const [primaryRole] = defineField('primaryRole')
+const [fullName] = defineField('fullName')
+const [role] = defineField('role')
 const [email] = defineField('email')
-const [phone] = defineField('phone')
+const [mobileNumber] = defineField('mobileNumber')
 const [password] = defineField('password')
 const [confirmPassword] = defineField('confirmPassword')
 const [agree] = defineField('agree')
 
-const onRegisterSubmit = handleSubmit((values) => {
-  console.log("Data borang yang bersih & sah untuk hantar ke Spring Boot:", values)
-  // Firing POST request payload anda ke API backend di sini...
+const onRegisterSubmit = handleSubmit(async (values) => {
+  const registrationCompleted = await registerStore.submitRegistration(values)
+  
+  if (registrationCompleted) {
+    alert("Pendaftaran berjaya!")
+    router.push('/login') // Changes route to your login view upon success
+  }
 })
 </script>
 
@@ -83,14 +91,14 @@ const onRegisterSubmit = handleSubmit((values) => {
                 <Icon icon="mdi:account-outline" class="size-5" aria-hidden="true" />
               </span>
               <input 
-                v-model="name" 
+                v-model="fullName" 
                 class="w-full text-slate-900 outline-none bg-transparent placeholder:text-slate-400" 
                 type="text" 
                 placeholder="Jane Doe" 
               />
             </div>
-            <span v-if="errors.name" class="mt-1 block text-xs font-medium text-rose-500">
-              {{ errors.name }}
+            <span v-if="errors.fullName" class="mt-1 block text-xs font-medium text-rose-500">
+              {{ errors.fullName }}
             </span>
           </div>
 
@@ -100,9 +108,9 @@ const onRegisterSubmit = handleSubmit((values) => {
               <span class="text-slate-400 mr-2 flex items-center justify-center">
                 <Icon icon="mdi:badge-account-outline" class="size-5" aria-hidden="true" />
               </span>
-              <select v-model="primaryRole" class="w-full text-slate-900 outline-none bg-transparent pr-4">
-                <option value="pemilik">Pemilik / Pengurus</option>
-                <option value="penyewa">Penyewa</option>
+              <select v-model="role" class="w-full text-slate-900 outline-none bg-transparent pr-4">
+                <option value="landlord">Pemilik / Pengurus</option>
+                <option value="tenant">Penyewa</option>
               </select>
             </div>
           </div>
@@ -133,14 +141,14 @@ const onRegisterSubmit = handleSubmit((values) => {
               <Icon icon="mdi:phone-outline" class="size-5" aria-hidden="true" />
             </span>
             <input 
-              v-model="phone" 
+              v-model="mobileNumber" 
               class="w-full text-slate-900 outline-none bg-transparent placeholder:text-slate-400" 
               type="tel" 
               placeholder="+60 12-345 6789" 
             />
           </div>
-          <span v-if="errors.phone" class="mt-1 block text-xs font-medium text-rose-500">
-            {{ errors.phone }}
+          <span v-if="errors.mobileNumber" class="mt-1 block text-xs font-medium text-rose-500">
+            {{ errors.mobileNumber }}
           </span>
         </div>
 
@@ -198,8 +206,13 @@ const onRegisterSubmit = handleSubmit((values) => {
           </span>
         </div>
 
-        <button class="w-full rounded-xl bg-emerald-600 px-4 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99]" type="submit">
-          Daftar Akaun
+        <button 
+          :disabled="registerStore.isLoading"
+          class="w-full rounded-xl bg-emerald-600 px-4 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed" 
+          type="submit"
+        >
+          <span v-if="registerStore.isLoading">Sila tunggu...</span>
+          <span v-else>Daftar Akaun</span>
         </button>
       </form>
 

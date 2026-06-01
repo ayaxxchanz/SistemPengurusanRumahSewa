@@ -35,3 +35,29 @@ export const useAuthStore = defineStore("auth", {
     },
   },
 });
+
+export const useRegisterStore = defineStore('register', () => {
+  const isLoading = ref(false);
+  const serverError = ref(null);
+
+  async function submitRegistration(formData) {
+    isLoading.value = true;
+    serverError.value = null;
+
+    const result = await registerAction(formData);
+    isLoading.value = false;
+
+    if (!result.success) {
+      serverError.value = result.error;
+      return false;
+    }
+
+    return true;
+  }
+
+  return {
+    isLoading,
+    serverError,
+    submitRegistration,
+  };
+});
