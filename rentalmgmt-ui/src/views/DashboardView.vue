@@ -1,12 +1,17 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from "@/stores/authStore"
 import AppContent from '@/components/layout/AppContent.vue'
 import AppContentWrapper from '@/components/layout/AppContentWrapper.vue'
 import ContentBlock from '@/components/layout/ContentBlock.vue'
 import HeroBannerSection from '@/components/layout/HeroBannerSection.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import TopUtilityBar from '@/components/layout/TopUtilityBar.vue'
+
+const { roleLabel, profile } = useAuth()
+const router = useRouter()
 
 const activeCategory = ref('Rent')
 const activeTimeframe = ref('Yearly')
@@ -90,7 +95,6 @@ const chartRows = computed(() => {
         }
     })
 })
-
 </script>
 
 <template>
@@ -102,9 +106,9 @@ const chartRows = computed(() => {
 
             <HeroBannerSection>
                 <div>
-                    <h1 class="text-3xl font-bold text-white sm:text-4xl">Dashboard Pemilik / Pengurus</h1>
-                    <p class="mt-2 max-w-xl text-base text-white">Selamat kembali, Aliya. Berikut ringkasan statistik
-                        sewaan anda.</p>
+                    <h1 class="text-3xl font-bold text-white sm:text-4xl">Dashboard {{ roleLabel || 'Pengguna'}}</h1>
+                    <!-- FIX: Use optional chaining and fallback value -->
+                    <p class="mt-2 max-w-xl text-base text-white">Selamat kembali, {{ profile?.fullName  || 'Pengguna' }}. Berikut ringkasan statistik sewaan anda.</p>
                 </div>
             </HeroBannerSection>
 

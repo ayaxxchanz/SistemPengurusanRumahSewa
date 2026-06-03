@@ -1,17 +1,21 @@
 package com.aliya.rentalmgmt.dto.response;
 
-// import com.aliya.rentalmgmt.enums.UserRole;
+import com.aliya.rentalmgmt.dto.AddressDto;
 import lombok.Getter;
 import lombok.Setter;
-// import lombok.ToString;
+
+import java.util.Set;
 
 @Setter
 @Getter
-// @ToString // Commented out: Not needed for simple response DTO
 public class ProfileResponseDto {
     private Long id;
     private String fullName;
+    private String displayName;
     private String email;
     private String phone;
-    //private UserRole role;
+    private String emergencyContact;
+    private Set<String> roles;
+    private AddressDto address;
+    //private boolean emailUpdated;
 }

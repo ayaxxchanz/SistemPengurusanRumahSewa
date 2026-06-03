@@ -41,17 +41,28 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
-
-  if (
-    to.meta.requiresAuth &&
-    !authStore.isAuthenticated
-  ) {
-    next("/login");
-  } else {
-    next();
+  
+  // Initialize auth if needed (fetch user profile if token exists but no user data)
+  if (authStore.isAuthenticated && !authStore.user) {
+    await authStore.initAuth();
   }
+
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next("/login");
+    return;
+  }
+
+  // Redirect authenticated users away from login/register pages
+  if (to.meta.guestOnly && authStore.isAuthenticated) {
+    next("/dashboard");
+    return;
+  }
+
+  next();
 });
+
 
 export default router

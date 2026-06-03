@@ -1,8 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuth } from "@/stores/authStore"
 
+const { logout } = useAuth()
+const router = useRouter()
 const isCollapsed = ref(false)
 const isSubmenuOpen = ref(false)
 
@@ -17,6 +20,11 @@ const toggleSubmenu = () => {
 onMounted(() => {
   isCollapsed.value = window.matchMedia('(max-width: 767px)').matches
 })
+
+const handleLogout = async () => {
+  await logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -37,12 +45,12 @@ onMounted(() => {
 
     <button
       class="group relative grid size-9 shrink-0 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-emerald-600 mt-0.5"
-      type="button" 
+      type="button" :title="isCollapsed ? '' : 'Collapse Sidebar'"
       @click="isCollapsed = !isCollapsed">
       <Icon :icon="isCollapsed ? 'mdi:menu-open' : 'mdi:menu'" class="size-5" aria-hidden="true" />
 
       <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
-        Buka Sidebar
+        Open Sidebar
       </span>
     </button>
   </div>
@@ -69,18 +77,18 @@ onMounted(() => {
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Pemilikan">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Properties">
           <Icon icon="fa7-solid:building" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Pemilikan</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Pemilikan</span>
+          <span v-if="!isCollapsed">Properties</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Properties</span>
         </a>
       </li>
 
       <li class="group" :class="{ 'open': isSubmenuOpen }">
-        <a href="#" @click.prevent="toggleSubmenu" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'justify-between gap-3 px-4 py-3']" title="Penyewa">
+        <a href="#" @click.prevent="toggleSubmenu" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'justify-between gap-3 px-4 py-3']" title="Tenants">
           <span class="flex items-center" :class="{ 'gap-3': !isCollapsed }">
             <Icon icon="mdi:account-group" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-            <span v-if="!isCollapsed">Penyewa</span>
+            <span v-if="!isCollapsed">Tenants</span>
           </span>
           <Icon 
             v-if="!isCollapsed"
@@ -107,33 +115,33 @@ onMounted(() => {
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Kutipan">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Collection">
           <Icon icon="streamline-ultimate:begging-hand-coin-2-bold" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Kutipan</span>
+          <span v-if="!isCollapsed">Collection</span>
           <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Kutipan</span>
         </a>
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Penyelenggaraan">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Maintenance">
           <Icon icon="wpf:maintenance" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Penyelenggaraan</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Penyelenggaraan</span>
+          <span v-if="!isCollapsed">Maintenance</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Maintenance</span>
         </a>
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Kontrak & Perjanjian">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Agreements">
           <Icon icon="fa6-solid:file-signature" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Kontrak & Perjanjian</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Kontrak & Perjanjian</span>
+          <span v-if="!isCollapsed">Agreements</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Contracts & Agreements</span>
         </a>
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Janji Temu">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Appointment">
           <Icon icon="solar:calendar-bold" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Janji Temu</span>
+          <span v-if="!isCollapsed">Appointment</span>
           <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Janji Temu</span>
         </a>
       </li>
@@ -144,7 +152,7 @@ onMounted(() => {
     <div class="flex flex-col gap-1 border-t border-slate-200 pt-4">
       <RouterLink 
         to="/profile" 
-        title="Kemas Kini Profil"
+        title="Edit Profile"
         class="group relative flex items-center rounded-lg text-sm font-medium no-underline text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-emerald-600 aria-[current=page]:bg-white aria-[current=page]:font-semibold aria-[current=page]:text-slate-900 aria-[current=page]:shadow-[0_4px_12px_rgba(15,23,42,0.03),0_1px_2px_rgba(15,23,42,0.02)]"
         :class="isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5'"
       >
@@ -156,25 +164,25 @@ onMounted(() => {
           aria-hidden="true"
         /> 
 
-        <span v-if="!isCollapsed">Kemas Kini Profil</span>
+        <span v-if="!isCollapsed">Edit Profile</span>
         <span v-else class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
-          Kemas Kini Profil
+          Edit Profile
         </span>
       </RouterLink>
-      <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="Panduan Pengguna">
+      <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="User Guide">
         <Icon icon="fa6-solid:book" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-        <span v-if="!isCollapsed">Panduan Pengguna</span>
-        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Panduan Pengguna</span>
+        <span v-if="!isCollapsed">User Guide</span>
+        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">User Guide</span>
       </a>
-      <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="Meja Bantuan">
+      <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="Help Desk">
         <Icon icon="fa6-solid:headset" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-        <span v-if="!isCollapsed">Meja Bantuan</span>
-        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Meja Bantuan</span>
+        <span v-if="!isCollapsed">Help Desk</span>
+        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Help Desk</span>
       </a>
-      <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="Log Keluar">
+      <a href="#"  @click.prevent="handleLogout" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5']" title="Log Keluar">
         <Icon icon="mdi:logout" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-        <span v-if="!isCollapsed">Log Keluar</span>
-        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Log Keluar</span>
+        <span v-if="!isCollapsed">Log Out</span>
+        <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Log Out</span>
       </a>
     </div>
   </aside>

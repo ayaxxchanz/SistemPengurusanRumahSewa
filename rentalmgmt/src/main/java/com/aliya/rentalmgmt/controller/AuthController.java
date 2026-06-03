@@ -1,9 +1,11 @@
 package com.aliya.rentalmgmt.controller;
 
+import com.aliya.rentalmgmt.dto.AddressDto;
 import com.aliya.rentalmgmt.dto.request.LoginRequestDto;
 import com.aliya.rentalmgmt.dto.response.LoginResponseDto;
 import com.aliya.rentalmgmt.dto.RegisterRequestDto;
 import com.aliya.rentalmgmt.dto.UserDto;
+import com.aliya.rentalmgmt.entity.Address;
 import com.aliya.rentalmgmt.entity.User;
 import com.aliya.rentalmgmt.entity.Role;
 import com.aliya.rentalmgmt.repository.RoleRepository;
@@ -50,7 +52,7 @@ public class AuthController {
         // authenticate manually instead of using the spring security filter
         try {
             Authentication authentication = authenticationManager.authenticate(new
-                    UsernamePasswordAuthenticationToken(loginRequestDto.phone(),
+                    UsernamePasswordAuthenticationToken(loginRequestDto.email(),
                     loginRequestDto.password()));
             var userDto = new UserDto();
             var loggedInUser = (User) authentication.getPrincipal();
@@ -78,9 +80,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("password", "Choose a strong password"));
         }
-        Optional<User> existingUser = userRepository.findByEmailOrPhone(
-                registerRequestDto.getEmail(),
-                registerRequestDto.getMobileNumber()
+        Optional<User> existingUser = userRepository.findByEmail(
+                registerRequestDto.getEmail()
         );
         if (existingUser.isPresent()) {
             Map <String, String> errors = new HashMap<>();
@@ -89,18 +90,29 @@ public class AuthController {
             if(user.getEmail().equals(registerRequestDto.getEmail())){
                 errors.put("email", "Email already exists");
             }
-            if(user.getPhone() != null && user.getPhone().equals(registerRequestDto.getMobileNumber())){
-                errors.put("mobileNumber", "Mobile number already exists");
-            }
 
             return ResponseEntity.badRequest().body(errors);
         }
 
         User user = new User();
-        BeanUtils.copyProperties(registerRequestDto, user);
-        user.setPhone(registerRequestDto.getMobileNumber());
+        BeanUtils.copyProperties(registerRequestDto, user, "address", "password"); // Tell BeanUtils to ignore "address" and "password"
+        user.setPhone(registerRequestDto.getMobileNumber()); // because DTO field is not same as table field
         user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
-        roleRepository.findByName("ROLE_".concat(registerRequestDto.getRole().toUpperCase())).ifPresent(role -> user.setRoles(Set.of(role)));
+        Role role = roleRepository
+                .findByName("ROLE_" + registerRequestDto.getRole().name())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        user.setRoles(Set.of(role));
+        if (registerRequestDto.getAddress() != null) {
+            AddressDto addrDto = registerRequestDto.getAddress();
+            Address address = new Address();
+            address.setStreet(addrDto.getStreet());
+            address.setCity(addrDto.getCity());
+            address.setState(addrDto.getState());
+            address.setPostalCode(addrDto.getPostalCode());
+            address.setCountry(addrDto.getCountry());
+            user.setAddress(address);
+            address.setUser(user);
+        }
         userRepository.save(user);
 
         return ResponseEntity

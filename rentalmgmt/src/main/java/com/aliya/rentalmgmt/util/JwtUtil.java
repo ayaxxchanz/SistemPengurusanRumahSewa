@@ -29,7 +29,6 @@ public class JwtUtil {
         User fetchedUser = (User) authentication.getPrincipal();
         // generate header, payload & digital signature
         jwt = Jwts.builder().issuer("Rental Mgmt").subject("JWT Token")
-                .claim("phone",  fetchedUser.getPhone()) // claim(key, value)
                 .claim("email",  fetchedUser.getEmail()) // claim(key, value)
                 .claim("roles", authentication.getAuthorities().stream()
                         .map(Object::toString)

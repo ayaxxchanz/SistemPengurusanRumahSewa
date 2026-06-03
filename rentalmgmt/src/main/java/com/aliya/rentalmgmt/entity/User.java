@@ -1,6 +1,7 @@
 package com.aliya.rentalmgmt.entity;
 
 import com.aliya.rentalmgmt.entity.Role;
+import com.aliya.rentalmgmt.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,9 @@ public class User {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
+    @Column(name = "display_name", nullable = false, length = 150)
+    private String displayName;
+
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
@@ -32,12 +36,18 @@ public class User {
     @Column(length = 12)
     private String phone;
 
-        @ManyToMany(fetch = FetchType.EAGER)
-        @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-        )
-        private Set<Role> roles = new LinkedHashSet<>();
+    @Column(length = 12)
+    private String emergencyContact;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new LinkedHashSet<>();
+
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private Address address;
 
     @Column(name = "is_active")
     private Boolean isActive = true;

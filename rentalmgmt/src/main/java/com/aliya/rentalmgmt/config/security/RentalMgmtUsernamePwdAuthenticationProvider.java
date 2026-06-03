@@ -3,7 +3,6 @@ package com.aliya.rentalmgmt.config.security;
 import com.aliya.rentalmgmt.entity.User;
 import com.aliya.rentalmgmt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,17 +18,17 @@ import java.util.List;
 //@Profile("prod")
 @Component
 @RequiredArgsConstructor
-public class PhonePwdAuthenticationProvider implements AuthenticationProvider {
+public class RentalMgmtUsernamePwdAuthenticationProvider implements AuthenticationProvider {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String phone = authentication.getName();
+        String email = authentication.getName();
         String password = authentication.getCredentials().toString();
-        User user = userRepository.findByPhone(phone).orElseThrow(
-                () -> new UsernameNotFoundException("User not found for phone: " + phone)
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User not found for email: " + email)
         );
         if(passwordEncoder.matches(password, user.getPassword())){
             List<SimpleGrantedAuthority> authorities = user.getRoles().stream()

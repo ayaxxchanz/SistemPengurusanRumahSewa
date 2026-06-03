@@ -6,44 +6,150 @@ import ContentBlock from '@/components/layout/ContentBlock.vue'
 import HeroBannerSection from '@/components/layout/HeroBannerSection.vue'
 import TopUtilityBar from '@/components/layout/TopUtilityBar.vue'
 import { Icon } from '@iconify/vue'
-import { reactive, ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useAuth } from "@/stores/authStore"
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { z } from 'zod'
 
-const isEditing = ref(false)
+const { isLoading } = useAuth()
+const auth = useAuth()
 
-const profile = reactive({
-  fullName: 'Aliya Hassan',
-  email: 'aliya@example.com',
-  phone: '+60 12-345 6789',
-  role: 'Landlord',
-  address: 'No. 18, Jalan Melati, Shah Alam, Selangor',
-  emergencyContact: '+60 19-222 3344',
+const saveError = ref(null)
+const saveSuccess = ref(false)
+
+// --------------------
+// VALIDATION SCHEMA
+// --------------------
+const profileSchema = z.object({
+  fullName: z.string().min(1, 'Full name is required'),
+  displayName: z.string().min(1, 'Display name is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  emergencyContact: z.string().min(1, 'Emergency contact is required'),
+  
+  street: z.string().min(1, 'Address is required'),
+  postalCode: z.string().min(1, 'Postal code is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  country: z.string().min(1, 'Country is required'),
+
+  email: z.string().email('Invalid email format'),
+  password: z.string().optional().or(z.literal('')),
+  confirmPassword: z.string().optional().or(z.literal('')),
+}).refine((data) => {
+  if (data.password && data.password !== data.confirmPassword) {
+    return false
+  }
+  return true
+}, {
+  message: "Kata laluan dan Ulang Kata Laluan tidak sepadan",
+  path: ["confirmPassword"],
 })
 
-const form = reactive({ ...profile })
+// --------------------
+// VEEVALIDATE FORM
+// --------------------
+const {
+  errors,
+  defineField,
+  handleSubmit,
+  resetForm,
+  meta
+} = useForm({
+  validationSchema: toTypedSchema(profileSchema),
+})
 
-const details = [
-  { key: 'fullName', label: 'Name Penuh', icon: 'mdi:account-outline' },
-  { key: 'role', label: 'Peranan', icon: 'mdi:badge-account-outline' },
-  { key: 'email', label: 'Emel', icon: 'mdi:email-outline' },
-  { key: 'phone', label: 'Nombor Telefon', icon: 'mdi:phone-outline' },
-  { key: 'address', label: 'Alamat', icon: 'mdi:map-marker-outline' },
-  { key: 'emergencyContact', label: 'Emergency Contact', icon: 'mdi:phone-alert-outline' },
-]
+// --------------------
+// FIELDS
+// --------------------
+const [fullName] = defineField('fullName')
+const [displayName] = defineField('displayName')
+const [phone] = defineField('phone')
+const [emergencyContact] = defineField('emergencyContact')
 
-function startEdit() {
-  Object.assign(form, profile)
-  isEditing.value = true
+const [street] = defineField('street')
+const [postalCode] = defineField('postalCode')
+const [city] = defineField('city')
+const [state] = defineField('state')
+const [country] = defineField('country')
+
+const [email] = defineField('email')
+const [password] = defineField('password')
+const [confirmPassword] = defineField('confirmPassword')
+
+// --------------------
+// LOAD DATA
+// --------------------
+async function loadUserData() {
+  await auth.fetchProfile()
+
+  const p = auth.profile.value
+
+  resetForm({
+    values: {
+      fullName: p.fullName || '',
+      displayName: p.displayName || '',
+      phone: p.phone || '',
+      emergencyContact: p.emergencyContact || '',
+
+      street: p.address?.street || '',
+      city: p.address?.city || '',
+      state: p.address?.state || '',
+      postalCode: p.address?.postalCode || '',
+      country: p.address?.country || '',
+
+      email: p.email || '',
+      password: '',
+      confirmPassword: ''
+    }
+  })
 }
 
-function cancelEdit() {
-  Object.assign(form, profile)
-  isEditing.value = false
-}
+// --------------------
+// SUBMIT
+// --------------------
+const saveProfile = handleSubmit(async (formValues) => {
+  saveError.value = null
+  saveSuccess.value = false
 
-function saveProfile() {
-  Object.assign(profile, form)
-  isEditing.value = false
-}
+  const result = await auth.updateProfile({
+    fullName: formValues.fullName,
+    displayName: formValues.displayName,
+    phone: formValues.phone,
+    emergencyContact: formValues.emergencyContact,
+
+    street: formValues.street,
+    postalCode: formValues.postalCode,
+    city: formValues.city,
+    state: formValues.state,
+    country: formValues.country,
+
+    email: formValues.email,
+    password: formValues.password || undefined
+  })
+
+  if (result.success) {
+    saveSuccess.value = true
+
+    resetForm({
+      values: {
+        ...formValues,
+        password: '',
+        confirmPassword: ''
+      }
+    })
+
+    setTimeout(() => {
+      saveSuccess.value = false
+    }, 3000)
+  } else {
+    saveError.value = result.error || 'Gagal mengemaskini profil'
+  }
+})
+
+onMounted(() => {
+  loadUserData()
+})
 </script>
 
 <template>
@@ -54,291 +160,174 @@ function saveProfile() {
       <TopUtilityBar />
       <HeroBannerSection>
         <div>
-          <h1 class="text-3xl font-bold text-white sm:text-4xl">Kemas Kini Profil</h1>
-          <p class="mt-2 max-w-xl text-base text-white">Kemaskini maklumat peribadi anda yang terkini.</p>
+          <h1 class="text-3xl font-bold text-white sm:text-4xl">Edit Profile</h1>
+          <p class="mt-2 max-w-xl text-base text-white">Update your personal information.</p>
         </div>
       </HeroBannerSection>
+      
       <AppContent>
-        <div class="relative -mt-28 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Profile Photo"
-            class="size-36 rounded-full border-2 border-white object-cover shadow-2xl shadow-slate-950/40 ring-1 ring-white/60 sm:size-34 lg:size-38">
+        <!-- Profile Picture Section -->
+        <div class="relative -mt-28 mb-8">
+          <div class="relative inline-block">
+            <img 
+              src="https://www.w3schools.com/howto/img_avatar.png" 
+              alt="Profile Photo"
+              class="size-36 rounded-full border-4 border-white object-cover shadow-2xl shadow-slate-950/40 ring-1 ring-white/60"
+            />
+            <button 
+              class="absolute bottom-2 right-2 rounded-full bg-emerald-600 p-2 text-white shadow-lg transition hover:bg-emerald-700"
+              type="button"
+              @click="console.log('Upload photo feature')"
+            >
+              <Icon icon="mdi:camera" class="size-4" />
+            </button>
+          </div>
         </div>
 
         <ContentBlock class="mb-8">
-          <div class="mb-5 justify-end flex">
-            <button v-if="!isEditing"
-              class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-              type="button" @click="startEdit">
-              <Icon icon="mdi:pencil-outline" class="size-5" aria-hidden="true" />
-              Sunting
-            </button>
+          <!-- Loading State -->
+          <div v-if="isLoading && !profile" class="flex items-center justify-center py-12">
+            <Icon icon="mdi:loading" class="size-8 animate-spin text-emerald-600" />
+            <span class="ml-2 text-slate-600">Memuatkan profil...</span>
           </div>
 
-          <form v-if="isEditing" class="w-full space-y-4" @submit.prevent="saveProfile">
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Name Penuh</label>
-                <input v-model="form.fullName"
-                  class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                  type="text" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Peranan</label>
-                <select v-model="form.role"
-                  class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500">
-                  <option>Landlord</option>
-                  <option>Tenant</option>
-                </select>
+          <div v-else>
+            <!-- Status Success Message Bar -->
+            <div class="mb-5 flex flex-wrap items-center justify-end gap-3">
+              <div 
+                v-if="saveSuccess" 
+                class="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-emerald-700"
+              >
+                <Icon icon="mdi:check-circle-outline" class="size-5" />
+                <span class="text-sm font-medium">Profile updated successfully!</span>
               </div>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Emel</label>
-                <input v-model="form.email"
-                  class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                  type="email" />
+            <!-- Error Alert dari Backend -->
+            <div v-if="saveError" class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+              <div class="flex items-start gap-2">
+                <Icon icon="mdi:alert-circle-outline" class="size-5 text-red-600 shrink-0 mt-0.5" />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-red-800">Failed to update profile</p>
+                  <p class="text-sm text-red-700">{{ saveError }}</p>
+                </div>
+                <button type="button" class="text-red-600 hover:text-red-800" @click="saveError = null">
+                  <Icon icon="mdi:close" class="size-4" />
+                </button>
               </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Nombor Telefon</label>
-                <input v-model="form.phone"
-                  class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                  type="tel" />
+            </div>
+
+            <!-- Main Form (Satu borang yang sentiasa boleh diedit) -->
+            <form @submit.prevent="saveProfile" class="w-full space-y-8">
+              
+              <!-- Grid Layout Utama: Kiri (Maklumat Peribadi) & Kanan (Kemas Kini Emel/Password) -->
+              <div class="grid gap-8 lg:grid-cols-2">
+                
+                <!-- KOLUM KIRI: Maklumat Peribadi -->
+                <div class="space-y-4">
+                  <h2 class="text-lg font-bold text-slate-900">Personal Information</h2>
+                  
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Full Name<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="fullName" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Ahmad Abu bin Ali" required />
+                      <p v-if="errors.fullName" class="mt-1 text-xs text-red-600">{{ errors.fullName }}</p>
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Display Name<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="displayName" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Encik Amad" required/>
+                      <p v-if="errors.displayName" class="mt-1 text-xs text-red-600">{{ errors.displayName }}</p>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Phone Number<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="phone" type="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="60123456789" required />
+                      <p v-if="errors.phone" class="mt-1 text-xs text-red-600">{{ errors.phone }}</p>
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Emergency Contact<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="emergencyContact" type="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="60123456789" required />
+                      <p v-if="errors.emergencyContact" class="mt-1 text-xs text-red-600">{{ errors.emergencyContact }}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Address<span class="text-rose-500" aria-hidden="true">*</span></label>
+                    <input v-model="street" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="No. 123, Jalan ABC, Taman XYZ" required />
+                    <p v-if="errors.street" class="mt-1 text-xs text-red-600">{{ errors.street }}</p>
+                  </div>
+
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Postal Code<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="postalCode" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="50000" required />
+                      <p v-if="errors.postalCode" class="mt-1 text-xs text-red-600">{{ errors.postalCode }}</p>
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">City<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="city" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Kuala Lumpur" required />
+                      <p v-if="errors.city" class="mt-1 text-xs text-red-600">{{ errors.city }}</p>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">State<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="state" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Selangor" required />
+                      <p v-if="errors.state" class="mt-1 text-xs text-red-600">{{ errors.state }}</p>
+                    </div>
+                    <div>
+                      <label class="mb-1.5 block text-sm font-medium text-slate-700">Country<span class="text-rose-500" aria-hidden="true">*</span></label>
+                      <input v-model="country" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Malaysia" required />
+                      <p v-if="errors.country" class="mt-1 text-xs text-red-600">{{ errors.country }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KOLUM KANAN: Kemas Kini Emel / Kata Laluan -->
+                <div class="space-y-4">
+                  <h2 class="text-lg font-bold text-slate-900">Update Email / Password</h2>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Email<span class="text-rose-500" aria-hidden="true">*</span></label>
+                    <input v-model="email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" required />
+                    <p v-if="errors.email" class="mt-1 text-xs text-red-600">{{ errors.email }}</p>
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Change Password</label>
+                    <input v-model="password" type="password" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Enter new password if you want to change it" />
+                    <p v-if="errors.password" class="mt-1 text-xs text-red-600">{{ errors.password }}</p>
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700">Confirm New Password</label>
+                    <input v-model="confirmPassword" type="password" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" placeholder="Confirm new password" />
+                    <p v-if="errors.confirmPassword" class="mt-1 text-xs text-red-600">{{ errors.confirmPassword }}</p>
+                  </div>
+                </div>
+
               </div>
-            </div>
 
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700">Alamat</label>
-              <textarea v-model="form.address"
-                class="min-h-24 w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                rows="3" />
-            </div>
+              <!-- Bahagian Bawah: Butang Simpan Perubahan -->
+              <div class="flex justify-center pt-6 border-t border-slate-100">
+                <button
+                  class="inline-flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="submit" 
+                  :disabled="isLoading || !meta.dirty"
+                >
+                  <Icon v-if="isLoading" icon="mdi:loading" class="size-5 animate-spin" />
+                  <Icon v-else icon="ic:sharp-save" class="size-5" />
+                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
 
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700">Emergency Contact</label>
-              <input v-model="form.emergencyContact"
-                class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
-                type="tel" />
-            </div>
-
-            <div class="flex flex-col gap-3 pt-2 sm:flex-row">
-              <button
-                class="flex flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99]"
-                type="submit">
-                <Icon icon="ic:sharp-save" class="size-4 mr-2" aria-hidden="true" />
-                Simpan Perubahan
-              </button>
-              <button
-                class="flex-1 rounded-xl border border-slate-200 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
-                type="button" @click="cancelEdit">Batal</button>
-            </div>
-          </form>
-          <dl v-else class="grid w-full gap-3 lg:grid-cols-2">
-            <div v-for="item in details" :key="item.key" class="rounded-xl border border-slate-200 p-4">
-              <dt class="mb-1.5 flex items-center gap-2 text-sm font-medium text-slate-500">
-                <Icon :icon="item.icon" class="size-5" aria-hidden="true" />
-                {{ item.label }}
-              </dt>
-              <dd class="wrap-break-word font-semibold text-slate-900">{{ profile[item.key] }}</dd>
-            </div>
-          </dl>
-
+            </form>
+          </div>
         </ContentBlock>
       </AppContent>
     </AppContentWrapper>
-
-    <!-- <div class="min-w-0 flex-1 pl-[72px] md:pl-0">
-      <section class="relative bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_100%)] px-6 pb-16 pt-6 sm:px-10">
-        <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="relative w-full lg:w-[300px]">
-            <Icon icon="fa7-solid:magnifying-glass" class="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-            <input
-              type="text"
-              class="w-full rounded-full border border-transparent bg-white/10 py-2.5 pl-11 pr-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white/15"
-              placeholder="Cari unit, nama penyewa atau invois..."
-            >
-          </div>
-
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              class="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-400 transition hover:border-emerald-500 hover:bg-emerald-500 hover:text-white"
-              title="Tukar sebagai peranan penyewa"
-              type="button"
-            >
-              <span>Tukar Dashboard</span>
-              <Icon icon="fa7-solid:rotate" class="size-4" aria-hidden="true" />
-            </button>
-
-            <div class="relative">
-              <button
-                class="grid size-10 place-items-center rounded-full bg-white/10 text-slate-400 transition hover:bg-emerald-500 hover:text-white"
-                :class="{ 'bg-emerald-500 text-white': isActionOpen }"
-                title="Aksi Pantas"
-                type="button"
-                @click="isActionOpen = !isActionOpen"
-              >
-                <Icon icon="mdi:plus" class="size-5" aria-hidden="true" />
-              </button>
-              <div
-                v-if="isActionOpen"
-                class="absolute right-0 top-12 z-30 flex w-56 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/20"
-              >
-                <a href="#" class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600">
-                  <Icon icon="fa7-solid:building" class="size-4" aria-hidden="true" />
-                  <span>Tambah Unit Baru</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600">
-                  <Icon icon="fa7-solid:user-plus" class="size-4" aria-hidden="true" />
-                  <span>Daftar Penyewa</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600">
-                  <Icon icon="fa7-solid:receipt" class="size-4" aria-hidden="true" />
-                  <span>Kemasukan Rekod</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="relative">
-              <button
-                class="relative grid size-10 place-items-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white"
-                :class="{ 'bg-white/10 text-white': isNotificationOpen }"
-                type="button"
-                @click="isNotificationOpen = !isNotificationOpen"
-              >
-                <Icon icon="mdi:bell-outline" class="size-5" aria-hidden="true" />
-                <span class="absolute right-2 top-2 size-2 rounded-full bg-red-500"></span>
-              </button>
-              <div
-                v-if="isNotificationOpen"
-                class="absolute right-0 top-12 z-30 flex w-[min(340px,calc(100vw-3rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/20"
-              >
-                <div class="flex items-center justify-between border-b border-slate-100 p-4">
-                  <h4 class="text-sm font-bold text-slate-900">Notifikasi</h4>
-                  <a href="#" class="text-xs font-medium text-emerald-600 hover:text-emerald-700">Tanda semua dibaca</a>
-                </div>
-
-                <ul class="max-h-60 overflow-y-auto">
-                  <li class="flex gap-3 border-b border-slate-100 bg-emerald-50 px-4 py-3.5">
-                    <div class="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-600">
-                      <Icon icon="fa7-solid:wallet" class="size-4" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p class="text-sm text-slate-700">Ahmad Ridzuan telah membayar sewa untuk Unit A-10-3.</p>
-                      <span class="text-xs text-slate-400">5 minit yang lalu</span>
-                    </div>
-                  </li>
-                  <li class="flex gap-3 border-b border-slate-100 bg-emerald-50 px-4 py-3.5">
-                    <div class="grid size-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-600">
-                      <Icon icon="fa7-solid:file-circle-exclamation" class="size-4" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p class="text-sm text-slate-700">Kontrak sewaan Siti Nurhaliza (Unit B-05-11) bakal tamat dalam 30 hari.</p>
-                      <span class="text-xs text-slate-400">2 jam yang lalu</span>
-                    </div>
-                  </li>
-                  <li class="flex gap-3 border-b border-slate-100 px-4 py-3.5">
-                    <div class="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-600">
-                      <Icon icon="fa7-solid:circle-check" class="size-4" aria-hidden="true" />
-                    </div>
-                    <div>
-                      <p class="text-sm text-slate-700">Sistem berjaya memperbaharui invois bulanan untuk semua unit aktif.</p>
-                      <span class="text-xs text-slate-400">Semalam</span>
-                    </div>
-                  </li>
-                </ul>
-
-                <div class="bg-slate-50 p-3 text-center">
-                  <a href="#" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700">Lihat semua aktiviti</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h1 class="text-3xl font-bold text-white sm:text-4xl">Tetapan Profil</h1>
-          <p class="mt-2 max-w-xl text-base text-white">Review and update the account details used across the system.</p>
-
-          <img
-            src="https://www.w3schools.com/howto/img_avatar.png"
-            alt="Profile Photo"
-            class="-mb-32 mx-auto mt-8 size-36 rounded-full border-8 border-white object-cover shadow-2xl shadow-slate-950/40 ring-1 ring-white/60 sm:size-44 lg:size-48"
-          >
-        </div>
-      </section>
-
-      <section class="px-6 pb-10 pt-36 sm:px-10" aria-labelledby="profile-title">
-        <div class="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between my-7">
-            <div>
-              <h2 id="profile-title" class="text-3xl font-bold tracking-tight text-slate-900">My profile</h2>
-              <p class="mt-2 text-sm text-slate-500">Review and update the account details used across the system.</p>
-            </div>
-
-            <button
-              v-if="!isEditing"
-              class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-              type="button"
-              @click="startEdit"
-            >
-              <Icon icon="mdi:pencil-outline" class="size-5" aria-hidden="true" />
-              Edit
-            </button>
-          </div>
-
-          <form v-if="isEditing" class="w-full space-y-4" @submit.prevent="saveProfile">
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Name Penuh</label>
-                <input v-model="form.fullName" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" type="text" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Peranan</label>
-                <select v-model="form.role" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500">
-                  <option>Landlord</option>
-                  <option>Tenant</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Emel</label>
-                <input v-model="form.email" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" type="email" />
-              </div>
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">Nombor Telefon</label>
-                <input v-model="form.phone" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" type="tel" />
-              </div>
-            </div>
-
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700">Alamat</label>
-              <textarea v-model="form.address" class="min-h-24 w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" rows="3" />
-            </div>
-
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700">Emergency Contact</label>
-              <input v-model="form.emergencyContact" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500" type="tel" />
-            </div>
-
-            <div class="flex flex-col gap-3 pt-2 sm:flex-row">
-              <button class="flex-1 rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.99]" type="submit">Simpan Perubahan</button>
-              <button class="flex-1 rounded-xl border border-slate-200 px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50" type="button" @click="cancelEdit">Batal</button>
-            </div>
-          </form>
-
-          <dl v-else class="grid w-full gap-3 lg:grid-cols-2">
-            <div v-for="item in details" :key="item.key" class="rounded-xl border border-slate-200 p-4">
-              <dt class="mb-1.5 flex items-center gap-2 text-sm font-medium text-slate-500">
-                <Icon :icon="item.icon" class="size-5" aria-hidden="true" />
-                {{ item.label }}
-              </dt>
-              <dd class="break-words font-semibold text-slate-900">{{ profile[item.key] }}</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-    </div> -->
   </main>
 </template>
