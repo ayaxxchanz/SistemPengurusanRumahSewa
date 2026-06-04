@@ -14,10 +14,10 @@ import SiteTitle from '@/components/SiteTitle.vue'
         <SiteTitle />
 
         <h1 class="text-4xl font-bold leading-tight tracking-tight lg:text-3xl">
-          Rekod sewaan rasmi, hitam putih yang selamat.
+          Official rental records, secure and transparent.
         </h1>
         <p class="mt-6 text-lg leading-relaxed text-slate-300">
-          Urus pelaburan hartanah dan hak kediaman anda dengan rekod rasmi. Kunci bukti pembayaran, simpan log aduan kerosakan, dan urus dokumen kontrak secara sah di satu tempat.
+          Manage your rental investments and tenancy rights with an official record. Lock in payment proofs, keep a log of repair complaints, and manage contract documents securely in one place.
         </p>
 
         <div class="mt-12 grid grid-cols-3 gap-6 border-t border-slate-800 pt-8">

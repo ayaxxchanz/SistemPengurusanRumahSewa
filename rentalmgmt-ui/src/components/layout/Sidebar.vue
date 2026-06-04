@@ -30,7 +30,7 @@ const handleLogout = async () => {
 <template>
   <aside
     class="fixed inset-y-0 left-0 z-40 flex h-screen max-h-screen shrink-0 flex-col justify-between overflow-visible border-r border-slate-200 bg-slate-50 font-primary text-slate-600 shadow-xl shadow-slate-900/10 transition-all duration-300 md:sticky md:shadow-none"
-    :class="isCollapsed ? 'w-[72px] p-3' : 'w-[260px] p-6'"
+    :class="isCollapsed ? 'w-18 p-3' : 'w-65 p-6'"
   >
 
     <div class="mb-6 flex items-start" :class="isCollapsed ? 'justify-center' : 'justify-between gap-3'">
@@ -102,8 +102,8 @@ const handleLogout = async () => {
         
         <ul 
           v-if="!isCollapsed"
-          class="flex list-none flex-col gap-1 overflow-hidden pl-8 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-          :class="isSubmenuOpen ? 'max-h-[150px] mt-1' : 'max-h-0 mt-0'"
+          class="flex list-none flex-col gap-1 overflow-hidden pl-8 transition-all duration-300 ease-in-out"
+          :class="isSubmenuOpen ? 'max-h-37.5 mt-1' : 'max-h-0 mt-0'"
         >
           <li class="group/sub">
             <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] font-medium text-slate-500 no-underline transition-all duration-200 hover:bg-slate-100 hover:text-emerald-600">

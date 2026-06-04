@@ -96,7 +96,6 @@ public class AuthController {
 
         User user = new User();
         BeanUtils.copyProperties(registerRequestDto, user, "address", "password"); // Tell BeanUtils to ignore "address" and "password"
-        user.setPhone(registerRequestDto.getMobileNumber()); // because DTO field is not same as table field
         user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
         Role role = roleRepository
                 .findByName("ROLE_" + registerRequestDto.getRole().name())

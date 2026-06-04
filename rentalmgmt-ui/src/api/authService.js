@@ -10,7 +10,7 @@ const ENDPOINTS = {
 // Error messages
 const ERROR_MESSAGES = {
   LOGIN_FAILED: "Failed to login. Please try again.",
-  REGISTER_FAILED: "Pendaftaran gagal. Sila cuba lagi.",
+  REGISTER_FAILED: "Failed to register. Please try again.",
   NETWORK_ERROR: "Network error. Please check your connection.",
 };
 
@@ -77,7 +77,7 @@ export async function registerAction(registerForm) {
     displayName: registerForm.displayName,
     role: registerForm.role.toUpperCase(),
     email: registerForm.email,
-    mobileNumber: registerForm.mobileNumber,
+    phone: registerForm.phone,
     emergencyContact: registerForm.emergencyContact,
     address: {
       street: registerForm.street,

@@ -10,41 +10,15 @@ import { ref, onMounted } from 'vue'
 import { useAuth } from "@/stores/authStore"
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
+import { profileEditSchema } from '@/schemas/profileSchema.js'
 
 const { isLoading } = useAuth()
 const auth = useAuth()
 
 const saveError = ref(null)
 const saveSuccess = ref(false)
-
-// --------------------
-// VALIDATION SCHEMA
-// --------------------
-const profileSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
-  displayName: z.string().min(1, 'Display name is required'),
-  phone: z.string().min(1, 'Phone number is required'),
-  emergencyContact: z.string().min(1, 'Emergency contact is required'),
-  
-  street: z.string().min(1, 'Address is required'),
-  postalCode: z.string().min(1, 'Postal code is required'),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  country: z.string().min(1, 'Country is required'),
-
-  email: z.string().email('Invalid email format'),
-  password: z.string().optional().or(z.literal('')),
-  confirmPassword: z.string().optional().or(z.literal('')),
-}).refine((data) => {
-  if (data.password && data.password !== data.confirmPassword) {
-    return false
-  }
-  return true
-}, {
-  message: "Kata laluan dan Ulang Kata Laluan tidak sepadan",
-  path: ["confirmPassword"],
-})
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 // --------------------
 // VEEVALIDATE FORM
@@ -56,7 +30,8 @@ const {
   resetForm,
   meta
 } = useForm({
-  validationSchema: toTypedSchema(profileSchema),
+  validationSchema: toTypedSchema(profileEditSchema),
+  validateOnModelUpdate: false
 })
 
 // --------------------

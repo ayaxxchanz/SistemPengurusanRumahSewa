@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,11 +66,12 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(user.getAddress(), addressDto);
             profileResponseDto.setAddress(addressDto);
         }
-//        profileResponseDto.setRoles(
-//                user.getRoles().stream()
-//                        .map(Role::getName)
-//                        .collect(Collectors.toSet())
-//        );
+        // Map Set<Role> or Set<UserRoles> to Set<String> cleanly
+        Set<String> stringRoles = user.getRoles().stream()
+                .map(role -> role.getName().toString()) // assuming getName() returns the Enum or String
+                .collect(Collectors.toSet());
+
+        profileResponseDto.setRoles(stringRoles);
         return profileResponseDto;
     }
 

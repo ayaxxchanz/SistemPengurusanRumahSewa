@@ -29,9 +29,9 @@ public class RegisterRequestDto {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @NotBlank(message = "Mobile number is required")
-    @Pattern(regexp = "^\\d{11,12}$", message = "Mobile number must be 11 or 12 digits")
-    private String mobileNumber;
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^\\d{11,12}$", message = "Phone number must be 11 or 12 digits")
+    private String phone;
 
     @NotBlank(message = "Emergency contact is required")
     @Pattern(regexp = "^\\d{11,12}$", message = "Emergency contact must be 11 or 12 digits")

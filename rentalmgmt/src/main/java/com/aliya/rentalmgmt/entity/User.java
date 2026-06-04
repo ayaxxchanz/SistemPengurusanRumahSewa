@@ -33,10 +33,10 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(length = 12)
+    @Column(nullable = false, length = 12)
     private String phone;
 
-    @Column(length = 12)
+    @Column(nullable = false, length = 12)
     private String emergencyContact;
 
     @ManyToMany(fetch = FetchType.EAGER)

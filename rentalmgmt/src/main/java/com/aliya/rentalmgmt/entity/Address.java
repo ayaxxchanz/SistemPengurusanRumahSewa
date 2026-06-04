@@ -43,8 +43,8 @@ public class Address extends BaseEntity {
     @Column(name = "postal_code", nullable = false, length = 20)
     private String postalCode;
 
-    @Size(max = 100)
+    @Size(min = 2, max = 2)
     @NotNull
-    @Column(name = "country", nullable = false, length = 100)
+    @Column(name = "country", nullable = false, length = 2)
     private String country;
 }

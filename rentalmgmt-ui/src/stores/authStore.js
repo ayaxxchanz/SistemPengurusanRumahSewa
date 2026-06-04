@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { ref, computed } from "vue";
 import { loginAction, registerAction, getProfileAction, updateProfileAction } from "@/api/authService";
 import { tokenManager } from "@/api/apiClient";
@@ -88,28 +88,26 @@ export const useAuthStore = defineStore("auth", {
         country: state.user?.address?.country ?? "",
       },
     }),
-    userRole: (state) => state.user?.roles?.join(", ") || "",
-    isAuthLoading: (state) => state.isLoading,
-    hasAuthError: (state) => !!state.authError,
+    // Optional helper: Returns all roles joined by commas if you ever need to display all of them
+    userRolesList: (state) => state.user?.roles ?? [],
+    userRoleString: (state) => state.user?.roles?.join(", ") || "",
+
+    // 2. Returns the human-readable label of the FIRST role
     roleLabel: (state) => {
       const roleMap = {
+        ROLE_ADMIN: "Admin",
         ROLE_LANDLORD: "Landlord",
         ROLE_TENANT: "Tenant",
-        ROLE_ADMIN: "Admin"
       };
 
-      const role = state.user?.roles?.[0];
-      return roleMap[role] || "User";
+      // Safely extract the very first role from the array
+      const primaryRole = state.user?.roles?.[0];
+
+      // Map it to the clean string, or default to "User" if missing/unmapped
+      return roleMap[primaryRole] || "User";
     },
-    address: (state) => {
-      const addressMap = {
-        street: state.user?.street || "",
-        city: state.user?.city || "",
-        state: state.user?.state || "",
-        postalCode: state.user?.postalCode || "",
-      };
-      return addressMap;
-    }
+    isAuthLoading: (state) => state.isLoading,
+    hasAuthError: (state) => !!state.authError
   },
 
   actions: {
@@ -186,20 +184,30 @@ export const useAuthStore = defineStore("auth", {
   },
 });
 
-// Composable for using auth store in components
+
 export function useAuth() {
   const authStore = useAuthStore();
   
+  // storeToRefs keeps state and getters reactive automatically
+  const { 
+    isAuthenticated, 
+    isLoading, 
+    authError: error, // you can alias if needed
+    userRoleString, 
+    roleLabel, 
+    profile 
+  } = storeToRefs(authStore);
+
   return {
-    user: computed(() => authStore.user),
-    isAuthenticated: computed(() => authStore.isAuthenticated),
-    isLoading: computed(() => authStore.isLoading),
-    error: computed(() => authStore.authError),
-    userName: computed(() => authStore.userName),
-    userEmail: computed(() => authStore.userEmail),
-    userRole: computed(() => authStore.userRole),
-    roleLabel: computed(() => authStore.roleLabel),
-    profile: computed(() => authStore.profile),
+    // Refs/Computed
+    isAuthenticated,
+    isLoading,
+    error,
+    userRoleString,
+    roleLabel,
+    profile,
+    
+    // Actions (methods can be passed directly as they don't need storeToRefs)
     login: authStore.login,
     logout: authStore.logout,
     updateProfile: authStore.updateProfile,

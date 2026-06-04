@@ -114,7 +114,7 @@ const handleKeyPress = (e) => {
           type="submit"
           :disabled="isLoading"
         >
-          <span v-if="isLoading">Sedang log masuk...</span>
+          <span v-if="isLoading">Signing in...</span>
           <span v-else>Log In</span>
         </button>
       </form>

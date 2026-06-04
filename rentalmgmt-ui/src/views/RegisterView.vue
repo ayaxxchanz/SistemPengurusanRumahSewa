@@ -6,7 +6,7 @@ import AuthSidebar from '@/components/AuthSidebar.vue'
 
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
+import { userRegisterSchema } from '@/schemas/profileSchema.js'
 import { useRegisterStore } from "@/stores/authStore"
 
 const registerStore = useRegisterStore()
@@ -14,42 +14,14 @@ const router = useRouter()
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const validationSchema = toTypedSchema(
-  z.object({
-    fullName: z.string().min(1, 'Full name is required').default(''),
-    displayName: z.string().min(1, 'Display name is required').default(''),
-    role: z.enum(['landlord', 'tenant']).default('landlord'),
-    email: z.string().min(1, 'Email is required').email('Invalid email format').default(''),
-    mobileNumber: z.string()
-      .min(1, 'Mobile number is required')
-      .regex(/^(\+?6?01)[0-46-9]-*[0-9]{7,8}$/, 'Invalid Malaysian phone number format'),
-    emergencyContact: z.string()
-      .min(1, 'Emergency contact is required')
-      .regex(/^(\+?6?01)[0-46-9]-*[0-9]{7,8}$/, 'Invalid Malaysian phone number format'),
-    street: z.string().min(1, 'Street address is required').default(''),
-    postalCode: z.string().min(1, 'Postal code is required').default(''),
-    city: z.string().min(1, 'City is required').default(''),
-    state: z.string().min(1, 'State is required').default(''),
-    country: z.string().min(1, 'Country is required').default(''),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-    agree: z.boolean().refine((val) => val === true, {
-      message: 'You must agree to the information verification'
-    })
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: "Password and confirm password do not match",
-    path: ["confirmPassword"], 
-  })
-)
-
 const { errors, defineField, handleSubmit, setFieldError } = useForm({
-  validationSchema,
+  validationSchema: toTypedSchema(userRegisterSchema),
   initialValues: {
     fullName: "",
     displayName: "",
     role: "landlord",
     email: "",
-    mobileNumber: "", 
+    phone: "", 
     emergencyContact: "",
     street: "",
     postalCode: "",
@@ -66,7 +38,7 @@ const [fullName] = defineField('fullName')
 const [displayName] = defineField('displayName')
 const [role] = defineField('role')
 const [email] = defineField('email')
-const [mobileNumber] = defineField('mobileNumber')
+const [phone] = defineField('phone')
 const [emergencyContact] = defineField('emergencyContact')
 const [street] = defineField('street')
 const [postalCode] = defineField('postalCode')
@@ -239,15 +211,15 @@ onUnmounted(() => {
                 <Icon icon="mdi:phone-outline" class="size-5" aria-hidden="true" />
               </span>
               <input 
-                v-model="mobileNumber" 
+                v-model="phone" 
                 class="w-full text-slate-900 outline-none bg-transparent placeholder:text-slate-400" 
                 type="tel" 
                 placeholder="+60 12-345 6789" 
                 :disabled="registerStore.isLoading"
               />
             </div>
-            <span v-if="errors.mobileNumber" class="mt-1 block text-xs font-medium text-rose-500">
-              {{ errors.mobileNumber }}
+            <span v-if="errors.phone" class="mt-1 block text-xs font-medium text-rose-500">
+              {{ errors.phone }}
             </span>
           </div>
 
