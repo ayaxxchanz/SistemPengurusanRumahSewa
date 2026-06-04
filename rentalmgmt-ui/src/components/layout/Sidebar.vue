@@ -97,7 +97,7 @@ const handleLogout = async () => {
             :class="{ 'rotate-90 text-emerald-600': isSubmenuOpen }"
             aria-hidden="true" 
           />
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Penyewa</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Tenants</span>
         </a>
         
         <ul 
@@ -108,7 +108,7 @@ const handleLogout = async () => {
           <li class="group/sub">
             <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] font-medium text-slate-500 no-underline transition-all duration-200 hover:bg-slate-100 hover:text-emerald-600">
               <Icon icon="ph:money-bold" class="size-4 transition-transform duration-200 group-hover/sub:scale-105 group-hover/sub:text-emerald-600" aria-hidden="true" /> 
-              Kutipan Sewa
+              Collection
             </a>
           </li>
         </ul>
@@ -118,7 +118,7 @@ const handleLogout = async () => {
         <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Collection">
           <Icon icon="streamline-ultimate:begging-hand-coin-2-bold" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
           <span v-if="!isCollapsed">Collection</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Kutipan</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Collection</span>
         </a>
       </li>
 
@@ -134,15 +134,15 @@ const handleLogout = async () => {
         <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Agreements">
           <Icon icon="fa6-solid:file-signature" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
           <span v-if="!isCollapsed">Agreements</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Contracts & Agreements</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Agreements</span>
         </a>
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Appointment">
+        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Appointments">
           <Icon icon="solar:calendar-bold" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Appointment</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Janji Temu</span>
+          <span v-if="!isCollapsed">Appointments</span>
+          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Appointments</span>
         </a>
       </li>
     </ul>
