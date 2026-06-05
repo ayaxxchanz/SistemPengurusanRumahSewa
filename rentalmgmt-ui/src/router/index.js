@@ -4,6 +4,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import PropertiesView from '@/views/PropertiesView.vue'
+import LeasesView from '@/views/LeasesView.vue'
 import { useAuthStore } from "@/stores/authStore";
 
 const router = createRouter({
@@ -33,6 +34,12 @@ const router = createRouter({
       path: '/properties',
       name: 'properties',
       component: PropertiesView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/leases',
+      name: 'leases',
+      component: LeasesView,
       meta: { requiresAuth: true },
     },
     {

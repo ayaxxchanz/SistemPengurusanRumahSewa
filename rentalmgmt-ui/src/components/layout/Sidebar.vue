@@ -141,11 +141,21 @@ const handleLogout = async () => {
       </li>
 
       <li class="group">
-        <a href="#" :class="[menuLinkClass, isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-3']" title="Agreements">
+        <RouterLink 
+          to="/leases"
+          title="Leases"
+          class="group relative flex items-center rounded-lg text-sm font-medium no-underline text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-emerald-600 aria-[current=page]:bg-white aria-[current=page]:font-semibold aria-[current=page]:text-slate-900 aria-[current=page]:shadow-[0_4px_12px_rgba(15,23,42,0.03),0_1px_2px_rgba(15,23,42,0.02)]"
+          :class="isCollapsed ? 'justify-center px-0 py-3' : 'gap-3 px-4 py-2.5'"
+        >
+          <span class="absolute left-0 top-0 h-full w-1 rounded-r bg-emerald-600 hidden group-aria-[current=page]:block"></span>
+
           <Icon icon="fa6-solid:file-signature" class="size-5 shrink-0 transition-transform duration-200 group-hover/item:scale-105 group-hover/item:text-emerald-600" aria-hidden="true" />
-          <span v-if="!isCollapsed">Agreements</span>
-          <span v-if="isCollapsed" class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">Agreements</span>
-        </a>
+
+          <span v-if="!isCollapsed">Leases</span>
+          <span v-else class="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+            Leases
+          </span>
+        </RouterLink>
       </li>
 
       <li class="group">
