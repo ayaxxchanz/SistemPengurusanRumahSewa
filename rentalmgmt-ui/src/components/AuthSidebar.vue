@@ -4,7 +4,7 @@ import SiteTitle from '@/components/SiteTitle.vue'
 </script>
 <template>
     <section
-      class="relative hidden items-center bg-slate-900 bg-cover bg-center p-16 lg:col-span-7 lg:flex"
+      class="relative hidden items-center bg-slate-900 bg-cover bg-center p-16 lg:col-span-6 lg:flex"
       style="background-image: url('https://images.unsplash.com/photo-1598232973707-41b8faa2592c?auto=format&fit=crop&w=1920&q=80')"
       aria-label="Rental property overview"
     >

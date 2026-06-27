@@ -37,7 +37,7 @@ const handleKeyPress = (e) => {
   <main class="grid min-h-screen grid-cols-1 bg-white antialiased lg:grid-cols-12">
     <AuthSidebar />
     
-    <section class="flex flex-col justify-center bg-white px-6 py-12 sm:px-16 md:px-20 lg:col-span-5 lg:px-12 xl:px-20" aria-labelledby="login-title">
+    <section class="flex flex-col justify-center bg-white px-6 py-12 sm:px-16 md:px-20 lg:col-span-6 lg:px-12 xl:px-20" aria-labelledby="login-title">
       <div class="mb-10 flex items-center gap-2 lg:hidden">
         <span class="grid size-9 place-items-center rounded-md bg-emerald-600 text-white">
           <Icon icon="mdi:home-city" class="size-6" aria-hidden="true" />
