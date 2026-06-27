@@ -1,10 +1,6 @@
 <script setup>
-import Sidebar from '@/components/layout/Sidebar.vue'
-import AppContent from '@/components/layout/AppContent.vue'
-import AppContentWrapper from '@/components/layout/AppContentWrapper.vue'
+import BaseLayout from '@/components/layout/BaseLayout.vue'
 import ContentBlock from '@/components/layout/ContentBlock.vue'
-import HeroBannerSection from '@/components/layout/HeroBannerSection.vue'
-import TopUtilityBar from '@/components/layout/TopUtilityBar.vue'
 import { Icon } from '@iconify/vue'
 import { ref, onMounted } from 'vue'
 import { useAuth } from "@/stores/authStore"
@@ -128,29 +124,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="flex min-h-screen items-start bg-slate-50 font-primary antialiased">
-    <Sidebar />
+  <BaseLayout>
+      <template #heroSection>
+        <h1 class="text-3xl font-bold text-white sm:text-4xl">Edit Profile</h1>
+        <p class="mt-2 max-w-xl text-base text-white">Update your personal information.</p>
+      </template>
 
-    <AppContentWrapper>
-      <TopUtilityBar />
-      <HeroBannerSection>
-        <div>
-          <h1 class="text-3xl font-bold text-white sm:text-4xl">Edit Profile</h1>
-          <p class="mt-2 max-w-xl text-base text-white">Update your personal information.</p>
-        </div>
-      </HeroBannerSection>
-      
-      <AppContent>
+      <template #appContent>
         <!-- Profile Picture Section -->
-        <div class="relative -mt-28 mb-8">
+        <div class="relative -mt-38 mb-8">
           <div class="relative inline-block">
             <img 
               src="https://www.w3schools.com/howto/img_avatar.png" 
               alt="Profile Photo"
-              class="size-36 rounded-full border-4 border-white object-cover shadow-2xl shadow-slate-950/40 ring-1 ring-white/60"
+              class="size-56 rounded-full border-4 border-white object-cover shadow-2xl shadow-slate-950/40 ring-1 ring-white/60"
             />
             <button 
-              class="absolute bottom-2 right-2 rounded-full bg-emerald-600 p-2 text-white shadow-lg transition hover:bg-emerald-700"
+              class="absolute bottom-4 right-4 rounded-full bg-emerald-600 p-2 text-white shadow-lg transition hover:bg-emerald-700"
               type="button"
               @click="console.log('Upload photo feature')"
             >
@@ -163,7 +153,7 @@ onMounted(() => {
           <!-- Loading State -->
           <div v-if="isLoading && !profile" class="flex items-center justify-center py-12">
             <Icon icon="mdi:loading" class="size-8 animate-spin text-emerald-600" />
-            <span class="ml-2 text-slate-600">Memuatkan profil...</span>
+            <span class="ml-2 text-slate-600">Saving profile...</span>
           </div>
 
           <div v-else>
@@ -302,7 +292,6 @@ onMounted(() => {
             </form>
           </div>
         </ContentBlock>
-      </AppContent>
-    </AppContentWrapper>
-  </main>
+      </template>
+  </BaseLayout>
 </template>
